@@ -5,8 +5,6 @@
 #include <unistd.h>
 #include <time.h>
 
-
-
 // menu
 
 void afficherMenu()
@@ -22,7 +20,8 @@ void afficherMenu()
 
 // ajouter tache
 
-void ajouterTache(char *nom_tache, char *description, int priorite, int etat) {
+void ajouterTache(char *nom_tache, char *description, int priorite, int etat)
+{
     int id = 0;
     char ch;
     char *etatF = malloc(20 * sizeof(char));
@@ -30,36 +29,48 @@ void ajouterTache(char *nom_tache, char *description, int priorite, int etat) {
 
     FILE *fichier = fopen("taches.csv", "r");
 
-    if (fichier == NULL) {
+    if (fichier == NULL)
+    {
         printf("fichier n'existe pas.\n");
         return;
     }
 
-    while ((ch = fgetc(fichier)) != EOF) {
-        if (ch == '\n') {
+    while ((ch = fgetc(fichier)) != EOF)
+    {
+        if (ch == '\n')
+        {
             id++;
         }
     }
 
     fclose(fichier);
 
-    if (id > 0) {
+    if (id > 0)
+    {
         id++;
     }
 
     fichier = fopen("taches.csv", "a");
 
-    if (etat == 1) {
+    if (etat == 1)
+    {
         strcpy(etatF, "fini");
-    } else {
+    }
+    else
+    {
         strcpy(etatF, "pas fini");
     }
 
-    if (priorite == 1) {
+    if (priorite == 1)
+    {
         strcpy(prioriteF, "not important");
-    } else if (priorite == 2) {
+    }
+    else if (priorite == 2)
+    {
         strcpy(prioriteF, "important");
-    } else if (priorite == 3) {
+    }
+    else if (priorite == 3)
+    {
         strcpy(prioriteF, "very important");
     }
 
@@ -74,22 +85,27 @@ void ajouterTache(char *nom_tache, char *description, int priorite, int etat) {
     // Get deadline date
     char deadline[20];
     printf("Enter the deadline date (DD/MM/YYYY): ");
-    do {
+    do
+    {
         scanf("%s", deadline);
 
         // Parse the entered date
         int day, month, year;
-        if (sscanf(deadline, "%d/%d/%d", &day, &month, &year) != 3) {
+        if (sscanf(deadline, "%d/%d/%d", &day, &month, &year) != 3)
+        {
             printf("Invalid date format. Please enter again (DD/MM/YYYY): ");
             continue;
         }
 
         // Validate against today's date
-        if (year < tm_info->tm_year + 1900 || 
+        if (year < tm_info->tm_year + 1900 ||
             (year == tm_info->tm_year + 1900 && month < tm_info->tm_mon + 1) ||
-            (year == tm_info->tm_year + 1900 && month == tm_info->tm_mon + 1 && day < tm_info->tm_mday)) {
+            (year == tm_info->tm_year + 1900 && month == tm_info->tm_mon + 1 && day < tm_info->tm_mday))
+        {
             printf("Please enter a valid date from today onwards (DD/MM/YYYY): ");
-        } else {
+        }
+        else
+        {
             break;
         }
     } while (1);
@@ -109,20 +125,24 @@ void ajouterTache(char *nom_tache, char *description, int priorite, int etat) {
 
 // afficher de maniere organisee toutes les taches ajoutee
 
-void afficherTaches() {
+void afficherTaches()
+{
     system("cls");
     FILE *fichier = fopen("taches.csv", "r");
-    if (fichier == NULL) {
+    if (fichier == NULL)
+    {
         printf("Erreur: fichier n'existe pas ou ne peut pas être ouvert.\n");
         return;
     }
 
     char line[256];
     printf("ID\tNom\tDescription\tPriorite\tEtat\tDate creation\tdate faire\n");
-    while (fgets(line, sizeof(line), fichier)) {
+    while (fgets(line, sizeof(line), fichier))
+    {
         int id;
         char nom_tache[100], description[100], priorite[100], etat[100], dateinit[100], dateaff[100];
-        if (sscanf(line, "%d,%99[^,],%99[^,],%99[^,],%99[^,],%99[^,],%99[^,]", &id, nom_tache, description, priorite, etat, dateinit, dateaff) == 7) {
+        if (sscanf(line, "%d,%99[^,],%99[^,],%99[^,],%99[^,],%99[^,],%99[^,]", &id, nom_tache, description, priorite, etat, dateinit, dateaff) == 7)
+        {
             printf("%d\t%s\t%s\t%s\t%s\t%s\t%s\n", id, nom_tache, description, priorite, etat, dateinit, dateaff);
         }
     }
@@ -131,17 +151,88 @@ void afficherTaches() {
     sleep(3);
 }
 
-
 // modifier tache
 
-void modifierTache(){
+void modifierTache() {
+    system("cls");
+    afficherTaches();
 
+    int taskIDToModify;
+    printf("Enter the ID of the task you want to modify: ");
+    scanf("%d", &taskIDToModify);
+
+    FILE *originalFile = fopen("taches.csv", "r");
+    FILE *tempFile = fopen("temp.csv", "w");
+
+    if (originalFile == NULL || tempFile == NULL) {
+        printf("Erreur: Impossible d'ouvrir le(s) fichier(s).\n");
+        return;
+    }
+
+    time_t now;
+    struct tm *tm_info;
+    time(&now);
+    tm_info = localtime(&now);
+    char date[20];
+    strftime(date, sizeof(date), "%d/%m/%Y", tm_info);
+
+    char line[256];
+    while (fgets(line, sizeof(line), originalFile)) {
+        int id;
+        char nom_tache[100], description[100], priorite[100], etat[100], date[100], deadline[100];
+        if (sscanf(line, "%d,%99[^,],%99[^,],%99[^,],%99[^,],%99[^,],%99[^,]", &id, nom_tache, description, priorite, etat, date, deadline) == 7) {
+            if (id == taskIDToModify) {
+                // Modify the task details
+                printf("Enter the new name of the task: ");
+                scanf(" %[^\n]", nom_tache);
+                printf("Enter the new description of the task: ");
+                scanf(" %[^\n]", description);
+                printf("Enter the new priority of the task (1: not important, 2: important, 3: very important): ");
+                scanf("%s", priorite);
+                printf("Enter the new state of the task (1: finished, 0: unfinished): ");
+                scanf("%s", etat);
+                printf("Enter the new deadline date (DD/MM/YYYY): ");
+                do {
+                    scanf("%s", deadline);
+
+                    // Parse the entered date
+                    int day, month, year;
+                    if (sscanf(deadline, "%d/%d/%d", &day, &month, &year) != 3) {
+                        printf("Invalid date format. Please enter again (DD/MM/YYYY): ");
+                        continue;
+                    }
+
+                    // Validate against today's date
+                    if (year < tm_info->tm_year + 1900 || 
+                        (year == tm_info->tm_year + 1900 && month < tm_info->tm_mon + 1) ||
+                        (year == tm_info->tm_year + 1900 && month == tm_info->tm_mon + 1 && day < tm_info->tm_mday)) {
+                        printf("Please enter a valid date from today onwards (DD/MM/YYYY): ");
+                    } else {
+                        break;
+                    }
+                } while (1);
+            }
+            fprintf(tempFile, "%d,%s,%s,%s,%s,%s,%s\n", id, nom_tache, description, priorite, etat, date, deadline);
+        }
+    }
+
+    fclose(originalFile);
+    fclose(tempFile);
+
+    // Remove the original file
+    remove("taches.csv");
+
+    // Rename the temporary file to the original filename
+    rename("temp.csv", "taches.csv");
+    system("cls");
+    printf("Task modified successfully!\n");
+    sleep(2);
 }
 
 // suprimer tache
 
-
-void suprimerTache() {
+void suprimerTache()
+{
     system("cls");
     afficherTaches();
 
@@ -152,17 +243,21 @@ void suprimerTache() {
     FILE *originalFile = fopen("taches.csv", "r");
     FILE *tempFile = fopen("temp.csv", "w");
 
-    if (originalFile == NULL || tempFile == NULL) {
+    if (originalFile == NULL || tempFile == NULL)
+    {
         printf("Erreur: Impossible d'ouvrir le(s) fichier(s).\n");
         return;
     }
 
     char line[256];
-    while (fgets(line, sizeof(line), originalFile)) {
+    while (fgets(line, sizeof(line), originalFile))
+    {
         int id;
         char nom_tache[100], description[100], priorite[100], etat[100], date[100], deadline[100];
-        if (sscanf(line, "%d,%99[^,],%99[^,],%99[^,],%99[^,],%99[^,],%99[^,]", &id, nom_tache, description, priorite, etat, date, deadline) == 7) {
-            if (id != taskIDToDelete) {
+        if (sscanf(line, "%d,%99[^,],%99[^,],%99[^,],%99[^,],%99[^,],%99[^,]", &id, nom_tache, description, priorite, etat, date, deadline) == 7)
+        {
+            if (id != taskIDToDelete)
+            {
                 fprintf(tempFile, "%d,%s,%s,%s,%s,%s,%s", id, nom_tache, description, priorite, etat, date, deadline);
             }
         }
@@ -183,13 +278,16 @@ void suprimerTache() {
 
 // filtrer les dates par priorite ou par date d'echeance
 
-char *filtrerParDate(){
+char *filtrerParDate()
+{
 }
 
-char *filtrerParPriorite(){
+char *filtrerParPriorite()
+{
 }
 
 // marquer les tache comme terminees
 
-void marqueTirminer(){
+void marqueTirminer()
+{
 }

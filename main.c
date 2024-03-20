@@ -47,7 +47,11 @@ int main() {
             case 3:
                 suprimerTache() ;
                 break;
-            
+
+            case 4:
+                modifierTache();
+                break;
+
             default:
 
                 break;
