@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> 
+
 #include "todo.h"
 
 int main() {
+
+    system("cls");
     int choix = 0;
 
     printf("\t\t\tTo-Do-List\n\n");
@@ -21,30 +24,32 @@ int main() {
                 // Declare and allocate memory for nom_tache and description
                 char* nom_tache = malloc(100 * sizeof(char));
                 char* description = malloc(100 * sizeof(char));
-                char* priorite = malloc(100 * sizeof(char));
-                char* date = malloc(10*sizeof(char));
+                int priorite;
                 int etat;
                 printf("Entrez le nom de la tache : ");
-                scanf("%s", nom_tache);
+                scanf(" %[^\n]", nom_tache);
                 printf("Entrez la description de la tache : ");
-                scanf("%s", description);
-                printf("Entrez la priorite de la tache : ");
-                scanf("%s", priorite);
-                printf("Entrez l'etat de la tache \nentrer 1 c'est la rache ete fini sinon apuyez quelque chose : ");
+                scanf(" %[^\n]", description);
+                printf("Entrez la priorite de la tache :\n1.not important\n2.important\n3.very important\n>>");
+                scanf("%d", &priorite);
+                printf("Entrez l'etat de la tache \nentrer 1 c'est la rache ete fini sinon apuyez quelque chose\n>>");
                 scanf("%d", &etat);
-                printf("Entrer la date de tache(JJ/MM/AAAA) : ");
-                scanf("%s", date);
-                ajouterTache(nom_tache, description, priorite, etat, date);
+                ajouterTache(nom_tache, description, priorite, etat);
                 free(nom_tache);
                 free(description);
-                free(date);
                 break;
+            }
+
             case 2:
                 afficherTaches();
                 break;
-            }
+
+            case 3:
+                suprimerTache() ;
+                break;
+            
             default:
-                printf("\nentrer une valeur valide.");
+
                 break;
         }
     } while (choix != 6);

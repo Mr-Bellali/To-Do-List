@@ -5,9 +5,9 @@
 
 // Function declarations
 void afficherMenu();
-void ajouterTache(char* nom_tache, char* description, char* priorite, int etat, char* date);
+void ajouterTache(char *nom_tache, char *description, int priorite, int etat);
 void modifierTache();
-void supprimerTache();
+void suprimerTache();
 char* filtrerParDate();
 char* filtrerParPriorite();
 void afficherTaches();
