@@ -173,36 +173,51 @@ void modifierTache() {
     struct tm *tm_info;
     time(&now);
     tm_info = localtime(&now);
-    char date[20];
-    strftime(date, sizeof(date), "%d/%m/%Y", tm_info);
+    char currentDate[20];
+    strftime(currentDate, sizeof(currentDate), "%d/%m/%Y", tm_info);
 
     char line[256];
     while (fgets(line, sizeof(line), originalFile)) {
         int id;
-        char nom_tache[100], description[100], priorite[100], etat[100], date[100], deadline[100];
-        if (sscanf(line, "%d,%99[^,],%99[^,],%99[^,],%99[^,],%99[^,],%99[^,]", &id, nom_tache, description, priorite, etat, date, deadline) == 7) {
+        char nom_tache[100], description[100], priorite[100], etat[100], taskDate[100], deadline[100];
+        if (sscanf(line, "%d,%99[^,],%99[^,],%99[^,],%99[^,],%99[^,],%99[^,]", &id, nom_tache, description, priorite, etat, taskDate, deadline) == 7) {
             if (id == taskIDToModify) {
-                // Modify the task details
                 printf("Enter the new name of the task: ");
                 scanf(" %[^\n]", nom_tache);
                 printf("Enter the new description of the task: ");
                 scanf(" %[^\n]", description);
                 printf("Enter the new priority of the task (1: not important, 2: important, 3: very important): ");
-                scanf("%s", priorite);
+                int priorityInput;
+                scanf("%d", &priorityInput);
+                if(priorityInput == 1){
+                    strcpy(priorite, "not important");
+                } else if(priorityInput == 2){
+                    strcpy(priorite, "important");
+                } else if(priorityInput == 3){
+                    strcpy(priorite, "very important");
+                } else {
+                    printf("Invalid priority input.\n");
+                    continue;
+                }
                 printf("Enter the new state of the task (1: finished, 0: unfinished): ");
-                scanf("%s", etat);
+                int stateInput;
+                scanf("%d", &stateInput);
+                if (stateInput == 1) {
+                    strcpy(etat, "fini");
+                } else if (stateInput == 0) {
+                    strcpy(etat, "pas fini");
+                } else {
+                    printf("Invalid state input.\n");
+                    continue;
+                }
                 printf("Enter the new deadline date (DD/MM/YYYY): ");
                 do {
-                    scanf("%s", deadline);
-
-                    // Parse the entered date
+                    scanf("%99s", deadline);
                     int day, month, year;
                     if (sscanf(deadline, "%d/%d/%d", &day, &month, &year) != 3) {
                         printf("Invalid date format. Please enter again (DD/MM/YYYY): ");
                         continue;
                     }
-
-                    // Validate against today's date
                     if (year < tm_info->tm_year + 1900 || 
                         (year == tm_info->tm_year + 1900 && month < tm_info->tm_mon + 1) ||
                         (year == tm_info->tm_year + 1900 && month == tm_info->tm_mon + 1 && day < tm_info->tm_mday)) {
@@ -212,17 +227,14 @@ void modifierTache() {
                     }
                 } while (1);
             }
-            fprintf(tempFile, "%d,%s,%s,%s,%s,%s,%s\n", id, nom_tache, description, priorite, etat, date, deadline);
         }
+        fprintf(tempFile, "%d,%s,%s,%s,%s,%s,%s\n", id, nom_tache, description, priorite, etat, taskDate, deadline);
     }
 
     fclose(originalFile);
     fclose(tempFile);
 
-    // Remove the original file
     remove("taches.csv");
-
-    // Rename the temporary file to the original filename
     rename("temp.csv", "taches.csv");
     system("cls");
     printf("Task modified successfully!\n");
