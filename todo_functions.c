@@ -290,16 +290,92 @@ void suprimerTache()
 
 // filtrer les dates par priorite ou par date d'echeance
 
-char *filtrerParDate()
-{
+void filtrerParDate() {
+    system("cls");
+    FILE *file = fopen("taches.csv", "r");
+    if (file == NULL) {
+        printf("Erreur: Impossible d'ouvrir le fichier des tâches.\n");
+        return;
+    }
+
+    // Get the current date
+    time_t now;
+    time(&now);
+    struct tm *tm_info;
+    tm_info = localtime(&now);
+
+    char line[256];
+    printf("ID\tNom\tDescription\tPriorite\tEtat\tDate creation\tdate faire\n");
+
+    while (fgets(line, sizeof(line), file)) {
+        int id;
+        char nom_tache[100], description[100], priorite[100], etat[100], date[100], deadline[100];
+        if (sscanf(line, "%d,%99[^,],%99[^,],%99[^,],%99[^,],%99[^,],%99[^,]", &id, nom_tache, description, priorite, etat, date, deadline) == 7) {
+            // Parse the deadline date
+            int day, month, year;
+            sscanf(deadline, "%d/%d/%d", &day, &month, &year);
+
+            // Calculate the difference in days
+            time_t deadline_time = mktime(&(struct tm){.tm_year = year - 1900, .tm_mon = month - 1, .tm_mday = day});
+            double difference = difftime(deadline_time, now) / (60 * 60 * 24);
+
+            // Define colors for date display
+            char *color;
+            if (difference < 3) {
+                color = "\033[0;31m"; // Red color
+            } else if (difference >= 5 && difference <= 7) {
+                color = "\033[0;33m"; // Gold color
+            } else {
+                color = "\033[0;32m"; // Green color
+            }
+
+            // Display only the deadline with color
+            char date_formatted[100];
+            sprintf(date_formatted, "%s%s%s", color, deadline, "\033[0m"); // Reset color
+            printf("%d\t,%s\t,%s\t,%s\t,%s\t,%s\t,%s\n", id, nom_tache, description, priorite, etat, date, date_formatted);
+        }
+    }
+
+    fclose(file);
+    sleep(2);
 }
 
-char *filtrerParPriorite()
-{
-}
+//filter priorite
 
-// marquer les tache comme terminees
+void filtrerParPriorite() {
+    system("cls");
+    FILE *file = fopen("taches.csv", "r");
+    if (file == NULL) {
+        printf("Erreur: Impossible d'ouvrir le fichier des tâches.\n");
+        return;
+    }
 
-void marqueTirminer()
-{
+    char line[256];
+    printf("ID\tNom\tDescription\tPriorite\tEtat\tDate creation\tDate faire\n");
+    while (fgets(line, sizeof(line), file)) {
+        int id;
+        char nom_tache[100], description[100], priorite[100], etat[100], date[100], deadline[100];
+        if (sscanf(line, "%d,%99[^,],%99[^,],%99[^,],%99[^,],%99[^,],%99[^,]", &id, nom_tache, description, priorite, etat, date, deadline) == 7) {
+            // Define colors for priority display
+            char *color;
+            if (strcmp(priorite, "not important") == 0) {
+                color = "\033[0;32m"; // Green color
+            } else if (strcmp(priorite, "important") == 0) {
+                color = "\033[0;33m"; // Gold color
+            } else if (strcmp(priorite, "very important") == 0) {
+                color = "\033[0;31m"; // Red color
+            } else {
+                // Default color
+                color = "\033[0m"; // Reset color
+            }
+
+            // Display only the priority with color
+            char priorite_formatted[100];
+            sprintf(priorite_formatted, "%s%s%s", color, priorite, "\033[0m"); // Reset color
+            printf("%d\t%s\t%s\t%s\t%s\t%s\t%s\n", id, nom_tache, description, priorite_formatted, etat, date, deadline);
+        }
+    }
+
+    fclose(file);
+    sleep(2);
 }

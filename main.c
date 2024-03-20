@@ -8,6 +8,7 @@ int main() {
 
     system("cls");
     int choix = 0;
+    int filter = 0;
 
     printf("\t\t\tTo-Do-List\n\n");
     do {
@@ -51,6 +52,17 @@ int main() {
             case 4:
                 modifierTache();
                 break;
+
+            case 5:
+                printf("1.filtrer les taches par dates.\n2.filtrer les taches par priorite\n>>");
+                scanf("%d",&filter);
+
+                if (filter == 1){
+                    filtrerParDate();
+                }else if (filter == 2){
+                    filtrerParPriorite();
+                }
+                
 
             default:
 

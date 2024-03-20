@@ -8,9 +8,9 @@ void afficherMenu();
 void ajouterTache(char *nom_tache, char *description, int priorite, int etat);
 void modifierTache();
 void suprimerTache();
-char* filtrerParDate();
-char* filtrerParPriorite();
+void filtrerParDate();
+void filtrerParPriorite();
 void afficherTaches();
-void marqueTerminer();
+
 
 #endif
