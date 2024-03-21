@@ -22,7 +22,6 @@ int main() {
 
         switch (choix) {
             case 1: {
-                // Declare and allocate memory for nom_tache and description
                 char* nom_tache = malloc(100 * sizeof(char));
                 char* description = malloc(100 * sizeof(char));
                 int priorite;
